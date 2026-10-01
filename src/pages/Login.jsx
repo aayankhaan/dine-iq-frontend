@@ -118,6 +118,11 @@ export default function Login() {
               Also supports analyst, regional and manager demo accounts.
             </div>
           )}
+          <div className="small muted" style={{ background: '#f7faf8', padding: 10, borderRadius: 10, border: '1px solid #e9efec' }}>
+            Admin login:<br />
+            Email: <b>admin@gmail.com</b><br />
+            Password: <b>admin1234</b>
+          </div>
         </form>
       </div>
     </div>
