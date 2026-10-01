@@ -52,17 +52,6 @@ export default function Admin() {
         <Card title="Users"><Async state={users}>{(u) => <DataTable rows={u.map((row) => ({ ...row, username: row.email, role: row.role === 'restaurant_manager' ? 'manager' : row.role, location: 'All' }))} columns={[{ key: 'username', label: 'Email' }, { key: 'name', label: 'Name' }, { key: 'role', label: 'Role', render: (v) => ROLES[v] }, { key: 'is_active', label: 'Status', render: (v) => v ? 'Active' : 'Disabled' }, { key: 'must_change_password', label: 'Password', render: (v) => v ? 'Change required' : 'Set' }]} />}</Async></Card>
       </>)}
       {tab === 'locations' && (<>
-        <Card title={location.id ? `Edit location ${location.id}` : 'Add restaurant location'} sub="Changes are stored as application metadata. Run the data pipeline after adding a location to generate analytics for it.">
-          <form onSubmit={saveLocation} className="grid g3" style={{ alignItems: 'end' }}>
-            <Field label="Location name"><input className="input" required value={location.name} onChange={(e) => setLocation({ ...location, name: e.target.value })} /></Field>
-            <Field label="City"><input className="input" required value={location.city} onChange={(e) => setLocation({ ...location, city: e.target.value })} /></Field>
-            <Field label="Area"><input className="input" required value={location.area} onChange={(e) => setLocation({ ...location, area: e.target.value })} /></Field>
-            <Field label="Opening date"><input className="input" type="date" value={(location.opening_date || '').slice(0, 10)} onChange={(e) => setLocation({ ...location, opening_date: e.target.value })} /></Field>
-            <Field label="Status"><select className="input" value={location.status} onChange={(e) => setLocation({ ...location, status: e.target.value })}><option>Active</option><option>Inactive</option></select></Field>
-            <div className="row"><button className="btn primary">{location.id ? 'Save changes' : 'Add location'}</button>{location.id && <button type="button" className="btn" onClick={() => setLocation(emptyLocation)}>Cancel</button>}</div>
-          </form>
-          {msg && <p className="small" role="status">{msg}</p>}
-        </Card>
         <Card title="Restaurant locations" sub="Select a row to edit its name, area or status"><Async state={locs}>{(rows) => <DataTable search rows={rows} onRowClick={(row) => setLocation(row)} columns={[{ key: 'id', label: 'ID' }, { key: 'name', label: 'Name' }, { key: 'city', label: 'City' }, { key: 'area', label: 'Area' }, { key: 'status', label: 'Status' }, { key: 'source', label: 'Source' }]} />}</Async></Card>
       </>)}
       {tab === 'audit' && <Card title="Audit trail" sub="Jobs, predictions, exports and admin actions"><Async state={audit}>{(a) => <DataTable rows={a.map((x, i) => ({ ...x, id: i }))} columns={[{ key: 'time', label: 'Time' }, { key: 'user', label: 'User' }, { key: 'area', label: 'Area' }, { key: 'action', label: 'Action' }]} />}</Async></Card>}
