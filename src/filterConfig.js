@@ -2,11 +2,11 @@ export const PAGE_FILTERS = {
   '/': ['dateFrom', 'dateTo', 'location', 'item', 'category', 'channel', 'promotion'],
   '/recommendations': ['location', 'item', 'segment', 'promotion'],
   '/menu': ['location', 'item', 'category', 'cls', 'priceMin', 'priceMax', 'ratingMin', 'wasteMax'],
-  '/pricing': ['item', 'category'],
+  '/pricing': ['location', 'item', 'category'],
   '/promotions': ['location', 'item', 'category', 'promotion'],
-  '/basket': ['item'],
+  '/basket': ['location', 'item'],
   '/ratings': ['dateFrom', 'dateTo', 'location', 'item'],
-  '/customers': ['segment', 'channel'],
+  '/customers': ['location', 'segment', 'channel'],
   '/peak': ['dateFrom', 'dateTo', 'location', 'channel', 'promotion'],
   '/forecast': ['location', 'item', 'category'],
   '/wastage': ['dateFrom', 'dateTo', 'location', 'item', 'category'],
@@ -17,8 +17,8 @@ export const PAGE_FILTERS = {
 export const REPORT_FILTERS = {
   'menu-performance': PAGE_FILTERS['/menu'],
   profitability: PAGE_FILTERS['/menu'],
-  'customer-segmentation': ['segment'],
-  'market-basket': ['item'],
+  'customer-segmentation': ['location', 'segment'],
+  'market-basket': ['location', 'item'],
   'demand-forecast': ['category'],
   wastage: PAGE_FILTERS['/wastage'],
   promotions: PAGE_FILTERS['/promotions'],
@@ -34,14 +34,15 @@ export function endpointFilters(path, params = {}) {
   if (path === '/kpis/executive') return PAGE_FILTERS['/'];
   if (path === '/menu/items') return PAGE_FILTERS['/menu'];
   if (path === '/menu/slow-moving') return ['location', 'item', 'category'];
-  if (path === '/customers/churn') return ['segment', 'channel'];
-  if (path.startsWith('/customers/')) return ['segment'];
-  if (path === '/basket/rules') return ['item'];
+  if (path === '/customers/churn') return ['location', 'segment', 'channel'];
+  if (path.startsWith('/customers/')) return ['location', 'segment'];
+  if (path === '/basket/rules') return ['location', 'item'];
   if (path === '/peak') return PAGE_FILTERS['/peak'];
   if (path === '/forecast') return [params.level === 'item' ? 'item' : params.level === 'location' ? 'location' : 'category'];
   if (path === '/wastage') return PAGE_FILTERS['/wastage'];
   if (path === '/pricing/sensitivity') return PAGE_FILTERS['/pricing'];
   if (path === '/promotions') return PAGE_FILTERS['/promotions'];
+  if (path === '/ratings') return PAGE_FILTERS['/ratings'];
   if (path === '/anomalies') return PAGE_FILTERS['/ratings'];
   if (path === '/locations') return ['location'];
   if (path === '/channels') return ['channel'];

@@ -16,17 +16,20 @@ export default function Basket() {
         </div>
       </Card>
       <Async state={r} empty="No item pairs pass these thresholds. Lower the minimum support or lift.">{(rules) => {
-        const top = rules.slice(0, 4); const chart = rules.slice(0, 10).map((x) => ({ pair: `${x.antecedent} + ${x.consequent}`, lift: x.lift }));
+        const bundles = rules.filter((x) => x.bundleEligible === true && x.lift > 1);
+        const top = bundles.slice(0, 4);
+        const chart = bundles.slice(0, 10).map((x) => ({ pair: `${x.antecedent} + ${x.consequent}`, lift: x.lift }));
         return (<>
-          <Insights items={[`${rules.length} item pairs are bought together more often than chance.`, top[0] && `Strongest pair: ${top[0].antecedent} + ${top[0].consequent} (lift ${top[0].lift}) – guests who order the first also order the second ${(top[0].confidence * 100).toFixed(0)}% of the time.`]} />
+          <Insights items={[`${rules.length} directional association rules match your thresholds.`, top[0] && `Top eligible bundle: ${top[0].antecedent} + ${top[0].consequent} (lift ${top[0].lift}) – guests who order the first also order the second ${(top[0].confidence * 100).toFixed(0)}% of the time.`]} />
           <div className="grid g2" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))' }}>
+            {top.length === 0 && <p>No eligible bundles match these thresholds.</p>}
             {top.map((x, i) => (
               <div key={i} className="rec"><h3>Bundle: {x.antecedent} + {x.consequent}</h3>
                 <ul><li>Support {pct(x.support * 100, 2)} – share of orders containing both</li><li>Confidence {pct(x.confidence * 100, 1)}</li><li>Lift {x.lift.toFixed(2)}</li></ul></div>
             ))}
           </div>
-          <Card title="Top rules by lift"><ResponsiveContainer width="100%" height={320}><BarChart data={chart} layout="vertical" margin={{ left: 140 }}><CartesianGrid stroke="#e6ebe8" horizontal={false} /><XAxis type="number" /><YAxis type="category" dataKey="pair" width={270} tick={{ fontSize: 11 }} /><Tooltip {...chartTip} /><Bar dataKey="lift" fill="#143229" /></BarChart></ResponsiveContainer></Card>
-          <Card title="All association rules"><DataTable search rows={rules.map((x, i) => ({ ...x, id: i }))} columns={[{ key: 'antecedent', label: 'If a guest orders' }, { key: 'consequent', label: 'They also order' }, { key: 'support', label: 'Support', num: true, render: (v) => pct(v * 100, 2) }, { key: 'confidence', label: 'Confidence', num: true, render: (v) => pct(v * 100, 1) }, { key: 'lift', label: 'Lift', num: true, render: (v) => Number(v).toFixed(2) }]} /></Card>
+          <Card title="Top eligible bundles by lift"><ResponsiveContainer width="100%" height={320}><BarChart data={chart} layout="vertical" margin={{ left: 140 }}><CartesianGrid stroke="#e6ebe8" horizontal={false} /><XAxis type="number" /><YAxis type="category" dataKey="pair" width={270} tick={{ fontSize: 11 }} /><Tooltip {...chartTip} /><Bar dataKey="lift" fill="#143229" /></BarChart></ResponsiveContainer></Card>
+          <Card title="Observed purchase associations"><p>These rules describe past orders. Only eligible pairs are offered as bundles.</p><DataTable search rows={rules.map((x, i) => ({ ...x, id: i }))} columns={[{ key: 'antecedent', label: 'If a guest orders' }, { key: 'consequent', label: 'They also order' }, { key: 'support', label: 'Support', num: true, render: (v) => pct(v * 100, 2) }, { key: 'confidence', label: 'Confidence', num: true, render: (v) => pct(v * 100, 1) }, { key: 'lift', label: 'Lift', num: true, render: (v) => Number(v).toFixed(2) }, { key: 'bundleEligible', label: 'Bundle eligible', render: (v) => v === true ? 'Yes' : 'No' }]} /></Card>
         </>);
       }}</Async>
     </div>

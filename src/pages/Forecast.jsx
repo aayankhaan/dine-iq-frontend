@@ -1,17 +1,20 @@
 import { useState } from 'react';
 import { Area, CartesianGrid, ComposedChart, Legend, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useApi } from '../hooks.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import { Async, Card, DataTable, Field, Insights, chartTip } from '../components/ui.jsx';
 
 export default function Forecast() {
+  const { user } = useAuth();
+  const manager = user?.role === 'manager';
   const [level, setLevel] = useState('category');
   const [horizon, setHorizon] = useState(14);
-  const f = useApi('/forecast', { level, horizon });
+  const f = useApi('/forecast', { level: manager ? 'location' : level, horizon });
   return (
     <div className="stack">
-      <Card title="Forecast settings" sub="Item, category and location filters in the top bar narrow the forecast">
+      <Card title="Forecast settings" sub={manager ? 'Demand forecast for your assigned restaurant' : 'Item, category and location filters in the top bar narrow the forecast'}>
         <div className="row">
-          <Field label="Forecast level"><select className="input" value={level} onChange={(e) => setLevel(e.target.value)}><option value="item">Menu item</option><option value="category">Category</option><option value="location">Location</option></select></Field>
+          <Field label="Forecast level"><select className="input" disabled={manager} value={manager ? 'location' : level} onChange={(e) => setLevel(e.target.value)}>{!manager && <><option value="item">Menu item</option><option value="category">Category</option></>}<option value="location">Location</option></select></Field>
           <Field label="Days ahead"><input className="input" type="number" min="1" max={f.data?.maxHorizon || 30} value={horizon} onChange={(e) => setHorizon(Math.min(f.data?.maxHorizon || 30, Math.max(1, +e.target.value || 1)))} /></Field>
         </div>
       </Card>
@@ -30,7 +33,7 @@ export default function Forecast() {
             </ResponsiveContainer>
           </Card>
           <div className="grid g2">
-            <Card title="Accuracy vs baseline"><DataTable rows={[{ id: 1, metric: 'MAE', model: m.MAE, base: m.baselineMAE }, { id: 2, metric: 'MAPE', model: m.MAPE, base: m.baselineMAPE }, { id: 3, metric: 'RMSE', model: m.RMSE, base: '—' }, { id: 4, metric: 'R²', model: m.R2, base: '—' }]} columns={[{ key: 'metric', label: 'Measure' }, { key: 'model', label: 'Model', num: true }, { key: 'base', label: 'Baseline', num: true }]} /></Card>
+            <Card title="Accuracy vs baseline"><DataTable rows={[{ id: 1, metric: 'MAE', model: m.MAE, base: m.baselineMAE }, { id: 2, metric: 'MAPE', model: m.MAPE, base: m.baselineMAPE }, { id: 3, metric: 'RMSE', model: m.RMSE, base: m.baselineRMSE ?? '—' }, { id: 4, metric: 'R²', model: m.R2, base: m.baselineR2 ?? '—' }]} columns={[{ key: 'metric', label: 'Measure' }, { key: 'model', label: 'Model', num: true }, { key: 'base', label: 'Baseline', num: true }]} /></Card>
             <Card title="High-risk demand periods"><DataTable rows={d.risk.map((r) => ({ ...r, id: r.date }))} columns={[{ key: 'date', label: 'Date' }, { key: 'predicted', label: 'Forecast', num: true }, { key: 'note', label: 'Action' }]} /></Card>
           </div>
         </>);

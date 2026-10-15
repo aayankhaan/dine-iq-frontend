@@ -19,7 +19,7 @@ function friendly(status, body, path) {
   const detail = body?.detail || body?.message || body?.error;
   const text = typeof detail === 'string' ? detail : '';
   if (status === 401) return path === '/auth/login' ? 'Email or password is incorrect.' : 'Your session has expired. Please sign in again.';
-  if (status === 403) return 'Your role does not have permission for this action.';
+  if (status === 403) return text || 'Your role does not have permission for this action.';
   if (status === 404) return 'This result has not been generated yet. Run the related processing job first.';
   if (status === 422 || status === 400) return text || 'Some of the values sent were not valid. Check the filters and try again.';
   if (status === 503 || /spark/i.test(text)) return text || 'The Spark cluster is not responding. Check the Spark job monitor and try again.';

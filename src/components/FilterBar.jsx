@@ -3,9 +3,11 @@ import { useApi } from '../hooks.js';
 import { useFilters } from '../context/FiltersContext.jsx';
 import { PAGE_FILTERS } from '../filterConfig.js';
 import { Field, Select } from './ui.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 
 export default function FilterBar() {
   const { pathname } = useLocation();
+  const { user } = useAuth();
   const visible = PAGE_FILTERS[pathname] || [];
   const { filters, setFilter, reset } = useFilters();
   const { data: meta } = useApi('/meta/filters', {}, { filtered: false });
@@ -16,7 +18,7 @@ export default function FilterBar() {
   const controls = {
     dateFrom: <Field label="From date">{input('dateFrom', 'date')}</Field>,
     dateTo: <Field label="To date">{input('dateTo', 'date')}</Field>,
-    location: <Field label="Location"><Select value={filters.location} onChange={set('location')} options={meta?.locations || []} /></Field>,
+    location: <Field label="Location">{user?.role === 'manager' ? <input className="input" disabled value={meta?.locations?.[0]?.name || 'Assigned restaurant'} /> : <Select value={filters.location} onChange={set('location')} options={meta?.locations || []} />}</Field>,
     item: <Field label="Menu item"><Select value={filters.item} onChange={set('item')} options={meta?.items || []} /></Field>,
     category: <Field label="Category"><Select value={filters.category} onChange={set('category')} options={meta?.categories || []} /></Field>,
     segment: <Field label="Customer segment"><Select value={filters.segment} onChange={set('segment')} options={meta?.segments || []} /></Field>,

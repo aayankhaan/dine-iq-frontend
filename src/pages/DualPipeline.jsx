@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useApi } from '../hooks.js';
 import { Async, Card, Chip, DataTable, Kpi, pct } from '../components/ui.jsx';
 
-const percent = (value) => pct(Number(value) * 100, 1);
+const percent = (value) => value == null ? 'Not calibrated' : pct(Number(value) * 100, 1);
 
 export default function DualPipeline() {
   const [onlyDiff, setOnlyDiff] = useState(false);
@@ -55,7 +55,7 @@ export default function DualPipeline() {
           </Card>
           <Card
             title="Prediction comparison"
-            sub={`${result.disagreements} disagreements across ${result.total} held-out records`}
+            sub={`${result.disagreements} disagreements across ${result.total} held-out records. ${result.confidenceMethod === 'temperature_scaling' ? 'Confidence values are calibrated estimates based on limited data.' : 'Calibrated confidence is not available for these saved results.'}`}
             actions={<label className="row small"><input type="checkbox" checked={onlyDiff} onChange={(e) => setOnlyDiff(e.target.checked)} /> Show disagreements only</label>}
           >
             <DataTable search pageSize={12} rows={comparisons} rowClass={(row) => (row.match ? '' : 'mismatch')} columns={[
